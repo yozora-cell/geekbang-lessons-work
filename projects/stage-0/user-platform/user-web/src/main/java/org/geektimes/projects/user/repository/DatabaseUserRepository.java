@@ -23,7 +23,10 @@ public class DatabaseUserRepository implements UserRepository {
     /**
      * 通用处理方式
      */
-    private static Consumer<Throwable> COMMON_EXCEPTION_HANDLER = e -> logger.log(Level.SEVERE, e.getMessage());
+    private static Consumer<Throwable> COMMON_EXCEPTION_HANDLER = e -> {
+        e.printStackTrace();
+        logger.log(Level.SEVERE, e.getMessage());
+    };
 
     public static final String INSERT_USER_DML_SQL =
             "INSERT INTO users(name,password,email,phoneNumber) VALUES " +
@@ -43,6 +46,21 @@ public class DatabaseUserRepository implements UserRepository {
 
     @Override
     public boolean save(User user) {
+        Connection connection = getConnection();
+        PreparedStatement preparedStatement;
+        try {
+            preparedStatement = connection.prepareStatement(INSERT_USER_DML_SQL);
+            preparedStatement.setString(1, user.getName());
+            preparedStatement.setString(2, user.getPassword());
+            preparedStatement.setString(3, user.getEmail());
+            preparedStatement.setString(4, user.getPhoneNumber());
+            int result = preparedStatement.executeUpdate();
+            preparedStatement.close();
+//            dbConnectionManager.releaseConnection();
+            return result > 0;
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
         return false;
     }
 
@@ -66,7 +84,17 @@ public class DatabaseUserRepository implements UserRepository {
         return executeQuery("SELECT id,name,password,email,phoneNumber FROM users WHERE name=? and password=?",
                 resultSet -> {
                     // TODO
-                    return new User();
+                    String resultName = null;
+                    String resultPassword = null;
+                    String resultEmail = null;
+                    String resultPhoneNumber = null;
+                    while (resultSet.next()) {
+                        resultName = resultSet.getString("name");
+                        resultPassword = resultSet.getString("password");
+                        resultEmail = resultSet.getString("email");
+                        resultPhoneNumber = resultSet.getString("phoneNumber");
+                    }
+                    return new User(resultName, resultPassword, resultEmail, resultPhoneNumber);
                 }, COMMON_EXCEPTION_HANDLER, userName, password);
     }
 
@@ -121,11 +149,10 @@ public class DatabaseUserRepository implements UserRepository {
                 if (wrapperType == null) {
                     wrapperType = argType;
                 }
-
                 // Boolean -> boolean
                 String methodName = preparedStatementMethodMappings.get(argType);
-                Method method = PreparedStatement.class.getMethod(methodName, wrapperType);
-                method.invoke(preparedStatement, i + 1, args);
+                Method method = PreparedStatement.class.getMethod(methodName, Integer.TYPE, wrapperType);
+                method.invoke(preparedStatement, i + 1, arg);
             }
             ResultSet resultSet = preparedStatement.executeQuery();
             // 返回一个 POJO List -> ResultSet -> POJO List
@@ -153,8 +180,10 @@ public class DatabaseUserRepository implements UserRepository {
         resultSetMethodMappings.put(Long.class, "getLong");
         resultSetMethodMappings.put(String.class, "getString");
 
-        preparedStatementMethodMappings.put(Long.class, "setLong"); // long
-        preparedStatementMethodMappings.put(String.class, "setString"); //
+        // long
+        preparedStatementMethodMappings.put(Long.class, "setLong");
+        // String
+        preparedStatementMethodMappings.put(String.class, "setString");
 
 
     }

@@ -9,16 +9,18 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 
 /**
- * 输出 “Hello,World” Controller
- */
-@Path("/hello")
-public class HelloWorldController implements PageController {
-
+ * description 主页
+ * program geekbang-lessons-mercyblitz
+ *
+ * @author yangxiao-lhq
+ * @date 2021/3/3 10:29
+ **/
+@Path("/")
+public class HomeController implements PageController {
 
     @Override
     @GET
     @POST
-    @Path("/world") // /hello/world -> HelloWorldController
     public String execute(HttpServletRequest request, HttpServletResponse response) throws Throwable {
         return "index.jsp";
     }

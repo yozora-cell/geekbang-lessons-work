@@ -5,21 +5,23 @@ import org.geektimes.web.mvc.controller.PageController;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 
 /**
- * 输出 “Hello,World” Controller
- */
-@Path("/hello")
-public class HelloWorldController implements PageController {
-
+ * description 注册控制器
+ * program geekbang-lessons-mercyblitz
+ *
+ * @author yangxiao-lhq
+ * @date 2021/3/3 10:31
+ **/
+@Path("/register")
+public class RegisterController implements PageController {
 
     @Override
     @GET
-    @POST
-    @Path("/world") // /hello/world -> HelloWorldController
     public String execute(HttpServletRequest request, HttpServletResponse response) throws Throwable {
-        return "index.jsp";
+        return "register-form.jsp";
     }
+
+
 }

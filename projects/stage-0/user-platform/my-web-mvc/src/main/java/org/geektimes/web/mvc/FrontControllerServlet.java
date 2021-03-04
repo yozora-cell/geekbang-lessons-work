@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.logging.Logger;
 
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang.StringUtils.substringAfter;
@@ -38,6 +39,9 @@ public class FrontControllerServlet extends HttpServlet {
      * 请求路径和 {@link HandlerMethodInfo} 映射关系缓存
      */
     private Map<String, HandlerMethodInfo> handleMethodInfoMapping = new HashMap<>();
+
+    private static Logger logger = Logger.getLogger(FrontControllerServlet.class.getName());
+
 
     /**
      * 初始化 Servlet
@@ -68,6 +72,7 @@ public class FrontControllerServlet extends HttpServlet {
                 handleMethodInfoMapping.put(requestPath,
                         new HandlerMethodInfo(requestPath, method, supportedHttpMethods));
             }
+            logger.info("controller: " + controller + " requestPath: " + requestPath);
             controllersMapping.put(requestPath, controller);
         }
     }
