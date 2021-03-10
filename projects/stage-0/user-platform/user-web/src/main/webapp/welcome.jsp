@@ -10,6 +10,7 @@
     </p>
     <p class="bg-success">
     <h2>${title}</h2>
+    <p>${errMsg}</p>
     </p>
     <p>
         用户名: ${username}
